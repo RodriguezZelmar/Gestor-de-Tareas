@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TaskManager.App.ViewModels"
+             x:Class="TaskManager.App.Views.ProjectEditorPage"
+             x:DataType="vm:ProjectEditorViewModel"
+             Title="{Binding Title}">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="4" MaximumWidthRequest="640">
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Nombre" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding Name}" MaxLength="80" Placeholder="Ej.: Lanzamiento de la app" />
+
+                    <Label Text="Descripción" Style="{StaticResource FieldLabel}" />
+                    <Editor Text="{Binding Description}" MaxLength="500" AutoSize="TextChanges" MinimumHeightRequest="80" Placeholder="Opcional" />
+
+                    <Label Text="Color" Style="{StaticResource FieldLabel}" />
+                    <FlexLayout BindableLayout.ItemsSource="{Binding Colors}" Wrap="Wrap">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ColorChoice">
+                                <Border WidthRequest="36" HeightRequest="36" Margin="0,0,8,8" StrokeShape="RoundRectangle 18" StrokeThickness="3"
+                                        Stroke="Transparent" BackgroundColor="{Binding Hex, Converter={StaticResource HexToColor}}">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="Stroke" Value="{AppThemeBinding Light=#1B1D23, Dark=White}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectEditorViewModel}}, Path=SelectColorCommand}"
+                                                              CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+
+                    <Label Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" Style="{StaticResource ErrorText}" />
+
+                    <HorizontalStackLayout Spacing="8" Margin="0,12,0,0" HorizontalOptions="End">
+                        <Button Text="Cancelar" Style="{StaticResource TextButton}" Command="{Binding CancelCommand}" />
+                        <Button Text="Guardar" Command="{Binding SaveCommand}" IsEnabled="{Binding IsNotBusy}" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

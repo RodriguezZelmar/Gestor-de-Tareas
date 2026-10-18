@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+    allowBackup/fullBackupContent desactivados: la base cifrada no debe viajar en copias de seguridad
+    (su clave vive en el Android Keystore y no se restaura en otro dispositivo).
+    Sin permiso de INTERNET: la app es 100 % local.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+	<application android:allowBackup="false"
+	             android:fullBackupContent="false"
+	             android:icon="@mipmap/appicon"
+	             android:roundIcon="@mipmap/appicon_round"
+	             android:supportsRtl="true"></application>
+</manifest>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TaskManager.App.ViewModels"
+             x:Class="TaskManager.App.Views.ProjectsPage"
+             x:DataType="vm:ProjectsViewModel"
+             Title="Tableros">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Nuevo tablero" Command="{Binding NewCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.MenuBarItems>
+        <MenuBarItem Text="Archivo">
+            <MenuFlyoutItem Text="Nuevo tablero" Command="{Binding NewCommand}">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Ctrl" Key="N" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Actualizar" Command="{Binding LoadCommand}">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="F5" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        </MenuBarItem>
+    </ContentPage.MenuBarItems>
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="16,12" RowSpacing="12">
+        <Grid ColumnDefinitions="*,Auto">
+            <VerticalStackLayout>
+                <Label Text="{Binding Greeting}" Style="{StaticResource H1}" />
+                <Label Text="Tus tableros de tareas" Style="{StaticResource Muted}" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1" Text="+ Nuevo tablero" Command="{Binding NewCommand}" VerticalOptions="Center" />
+        </Grid>
+
+        <Border Grid.Row="1" IsVisible="{Binding HasAlerts}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="14,10"
+                BackgroundColor="{AppThemeBinding Light=#FFF3E0, Dark=#3A2A12}">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ShowAlertsCommand}" />
+            </Border.GestureRecognizers>
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                <Label Text="⏰" FontSize="18" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="{Binding AlertText}" VerticalOptions="Center" TextColor="{AppThemeBinding Light=#8A4B00, Dark=#FFCC80}" />
+                <Label Grid.Column="2" Text="Ver ›" FontAttributes="Bold" VerticalOptions="Center" TextColor="{AppThemeBinding Light=#8A4B00, Dark=#FFCC80}" />
+            </Grid>
+        </Border>
+
+        <RefreshView Grid.Row="2" Command="{Binding LoadCommand}" IsRefreshing="{Binding IsBusy, Mode=OneWay}">
+            <CollectionView x:Name="ProjectList" ItemsSource="{Binding Projects}" SelectionMode="None">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="1" HorizontalItemSpacing="12" VerticalItemSpacing="12" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24" Spacing="8" HorizontalOptions="Center">
+                        <Label Text="Todavía no tenés tableros." Style="{StaticResource H2}" HorizontalOptions="Center" />
+                        <Label Text="Creá uno para empezar a organizar tus tareas." Style="{StaticResource Muted}" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ProjectItem">
+                        <Border Style="{StaticResource Card}" Padding="0">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectsViewModel}}, Path=OpenCommand}"
+                                                      CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="6,*">
+                                <BoxView Color="{Binding Color, Converter={StaticResource HexToColor}}" />
+                                <Grid Grid.Column="1" Padding="14,12" RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="6">
+                                    <Label Text="{Binding Name}" Style="{StaticResource H2}" LineBreakMode="TailTruncation" />
+                                    <Button Grid.Column="1" Text="⋮" Style="{StaticResource IconButton}" Margin="0,-8,-8,0"
+                                            SemanticProperties.Description="Opciones del tablero"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectsViewModel}}, Path=MoreCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Description}" IsVisible="{Binding HasDescription}"
+                                           Style="{StaticResource Muted}" MaxLines="2" LineBreakMode="TailTruncation" />
+                                    <ProgressBar Grid.Row="2" Grid.ColumnSpan="2" Progress="{Binding Progress}" ProgressColor="{Binding Color, Converter={StaticResource HexToColor}}" />
+                                    <HorizontalStackLayout Grid.Row="3" Grid.ColumnSpan="2" Spacing="10">
+                                        <Label Text="{Binding Counts}" Style="{StaticResource Muted}" FontSize="12" />
+                                        <Border Style="{StaticResource Chip}" BackgroundColor="{StaticResource Danger}" IsVisible="{Binding HasOverdue}">
+                                            <Label Text="{Binding OverdueText}" Style="{StaticResource ChipText}" />
+                                        </Border>
+                                    </HorizontalStackLayout>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

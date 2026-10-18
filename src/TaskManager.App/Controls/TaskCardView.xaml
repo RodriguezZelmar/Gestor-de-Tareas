@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Tarjeta de tarea. Arrastrable (mouse en Windows, pulsación larga en Android) y destino de "soltar" para reordenar. -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TaskManager.App.ViewModels"
+             x:Class="TaskManager.App.Controls.TaskCardView"
+             x:DataType="vm:TaskCardItem">
+    <Border Style="{StaticResource TaskCard}" SemanticProperties.Description="{Binding Title}">
+        <FlyoutBase.ContextFlyout>
+            <MenuFlyout>
+                <MenuFlyoutItem Text="Abrir / editar" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=OpenTaskCommand}" CommandParameter="{Binding .}" />
+                <MenuFlyoutSubItem Text="Mover a">
+                    <MenuFlyoutItem Text="Por hacer" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=MoveToToDoCommand}" CommandParameter="{Binding .}" />
+                    <MenuFlyoutItem Text="En proceso" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=MoveToInProgressCommand}" CommandParameter="{Binding .}" />
+                    <MenuFlyoutItem Text="Completado" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=MoveToDoneCommand}" CommandParameter="{Binding .}" />
+                </MenuFlyoutSubItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Eliminar" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=DeleteTaskCommand}" CommandParameter="{Binding .}" />
+            </MenuFlyout>
+        </FlyoutBase.ContextFlyout>
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=OpenTaskCommand}" CommandParameter="{Binding .}" />
+            <DragGestureRecognizer CanDrag="True"
+                                   DragStartingCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=StartDragCommand}"
+                                   DragStartingCommandParameter="{Binding .}" />
+            <DropGestureRecognizer AllowDrop="True"
+                                   DropCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=DropOnCardCommand}"
+                                   DropCommandParameter="{Binding .}" />
+        </Border.GestureRecognizers>
+        <Grid ColumnDefinitions="5,*">
+            <BoxView Color="{Binding PriorityColor, Converter={StaticResource HexToColor}}" />
+            <VerticalStackLayout Grid.Column="1" Padding="12,10" Spacing="6">
+                <FlexLayout BindableLayout.ItemsSource="{Binding Labels}" Wrap="Wrap" IsVisible="{Binding HasLabels}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:LabelChip">
+                            <Border Style="{StaticResource Chip}" Margin="0,0,4,4" BackgroundColor="{Binding Color, Converter={StaticResource HexToColor}}">
+                                <Label Text="{Binding Name}" Style="{StaticResource ChipText}" />
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+
+                <Label Text="{Binding Title}" FontSize="15" LineBreakMode="WordWrap" TextColor="{AppThemeBinding Light=#1B1D23, Dark=#F2F2F5}">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsDone}" Value="True">
+                            <Setter Property="TextDecorations" Value="Strikethrough" />
+                            <Setter Property="Opacity" Value="0.6" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+
+                <HorizontalStackLayout Spacing="8">
+                    <Border Style="{StaticResource Chip}" IsVisible="{Binding HasDue}" BackgroundColor="{AppThemeBinding Light=#ECEFF1, Dark=#2C2C32}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsOverdue}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{StaticResource Danger}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding DueText, StringFormat='⏰ {0}'}" FontSize="11" TextColor="{AppThemeBinding Light=#37474F, Dark=#CFD8DC}">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsOverdue}" Value="True">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </Border>
+                    <Label Text="{Binding PriorityText}" FontSize="11" FontAttributes="Bold" VerticalOptions="Center"
+                           TextColor="{Binding PriorityColor, Converter={StaticResource HexToColor}}" />
+                    <Label Text="{Binding CommentCount, StringFormat='💬 {0}'}" IsVisible="{Binding HasComments}" Style="{StaticResource Muted}" FontSize="11" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Grid>
+    </Border>
+</ContentView>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Tablero adaptable:
+    - Ancho (Windows, tablets): tres columnas lado a lado estilo Trello, arrastrar y soltar con el mouse.
+    - Angosto (teléfonos): pestañas por estado y una columna a la vez; deslizar una tarjeta la mueve de columna.
+-->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TaskManager.App.ViewModels"
+             xmlns:controls="clr-namespace:TaskManager.App.Controls"
+             x:Class="TaskManager.App.Views.BoardPage"
+             x:DataType="vm:BoardViewModel"
+             Title="{Binding ProjectName}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Editar tablero" Order="Secondary" Command="{Binding EditProjectCommand}" />
+        <ToolbarItem Text="Actualizar" Order="Secondary" Command="{Binding RefreshCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.MenuBarItems>
+        <MenuBarItem Text="Tablero">
+            <MenuFlyoutItem Text="Nueva tarea" Command="{Binding NewTaskCommand}">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Ctrl" Key="N" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Buscar" Clicked="OnFocusSearch">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Ctrl" Key="F" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Limpiar filtros" Command="{Binding ClearFiltersCommand}">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Ctrl" Key="L" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Actualizar" Command="{Binding RefreshCommand}">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="F5" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator />
+            <MenuFlyoutItem Text="Editar tablero" Command="{Binding EditProjectCommand}">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Ctrl" Key="E" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        </MenuBarItem>
+    </ContentPage.MenuBarItems>
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="12,8,12,12" RowSpacing="10">
+
+        <!-- Filtros -->
+        <VerticalStackLayout Spacing="4">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <SearchBar x:Name="Search" Text="{Binding SearchText}" Placeholder="Buscar tareas…" MaxLength="100"
+                       MaximumWidthRequest="420" HorizontalOptions="Fill" />
+            <Button Grid.Column="1" Text="Filtros" Style="{StaticResource OutlineButton}" VerticalOptions="Center"
+                    IsVisible="{Binding IsWide, Converter={StaticResource Not}}" Command="{Binding ToggleFiltersCommand}" />
+        </Grid>
+        <FlexLayout Wrap="Wrap" AlignItems="Center" IsVisible="{Binding FiltersVisible}">
+            <Picker ItemsSource="{Binding PriorityOptions}" SelectedItem="{Binding SelectedPriority}" Title="Prioridad" MinimumWidthRequest="160" Margin="0,0,8,4" />
+            <Picker ItemsSource="{Binding LabelOptions}" SelectedItem="{Binding SelectedLabel}" Title="Etiqueta"
+                    MinimumWidthRequest="150" Margin="0,0,8,4" />
+            <Picker ItemsSource="{Binding DueOptions}" SelectedItem="{Binding SelectedDue}" Title="Vencimiento"
+                    MinimumWidthRequest="150" Margin="0,0,8,4" />
+            <Button Text="Limpiar filtros" Style="{StaticResource TextButton}" IsVisible="{Binding HasActiveFilters}"
+                    Command="{Binding ClearFiltersCommand}" Margin="0,0,0,4" />
+        </FlexLayout>
+        </VerticalStackLayout>
+
+        <!-- Pestañas de estado (sólo en pantallas angostas) -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="6" IsVisible="{Binding IsWide, Converter={StaticResource Not}}"
+              BindableLayout.ItemsSource="{Binding Columns}">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="vm:BoardColumn">
+                    <Border StrokeShape="RoundRectangle 18" StrokeThickness="0" Padding="8,8"
+                            BackgroundColor="{AppThemeBinding Light=#E9EBF0, Dark=#1F1F23}"
+                            Grid.Column="{Binding State, Converter={StaticResource StateToColumn}}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=SelectColumnCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Label HorizontalOptions="Center" FontSize="13" FontAttributes="Bold" MaxLines="1" LineBreakMode="TailTruncation"
+                               TextColor="{AppThemeBinding Light=#37474F, Dark=#CFD8DC}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding Title}" />
+                                    <Span Text=" · " />
+                                    <Span Text="{Binding Count}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="TextColor" Value="White" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </Grid>
+
+        <!-- Columnas -->
+        <Grid x:Name="BoardGrid" Grid.Row="2" ColumnSpacing="12" ColumnDefinitions="*,*,*">
+            <controls:BoardColumnView x:Name="Column0" Grid.Column="0" BindingContext="{Binding Columns[0]}" />
+            <controls:BoardColumnView x:Name="Column1" Grid.Column="1" BindingContext="{Binding Columns[1]}" />
+            <controls:BoardColumnView x:Name="Column2" Grid.Column="2" BindingContext="{Binding Columns[2]}" />
+        </Grid>
+
+        <!-- Botón de acción flotante (Material) en teléfonos -->
+        <Button Grid.Row="2" Text="+" FontSize="28" WidthRequest="60" HeightRequest="60" CornerRadius="30" Padding="0"
+                HorizontalOptions="End" VerticalOptions="End" Margin="0,0,8,8"
+                IsVisible="{Binding IsWide, Converter={StaticResource Not}}"
+                SemanticProperties.Description="Nueva tarea"
+                Command="{Binding NewTaskCommand}">
+            <Button.Shadow>
+                <Shadow Brush="Black" Opacity="0.3" Radius="8" Offset="0,3" />
+            </Button.Shadow>
+        </Button>
+    </Grid>
+</ContentPage>

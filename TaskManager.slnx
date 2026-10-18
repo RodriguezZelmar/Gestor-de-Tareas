@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TaskManager.Core/TaskManager.Core.csproj" />
+    <Project Path="src/TaskManager.App/TaskManager.App.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TaskManager.Core.Tests/TaskManager.Core.Tests.csproj" />
+  </Folder>
+</Solution>

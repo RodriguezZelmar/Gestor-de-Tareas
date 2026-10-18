@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TaskManager.App.ViewModels"
+             x:Class="TaskManager.App.Views.AlertsPage"
+             x:DataType="vm:AlertsViewModel"
+             Title="Alertas">
+    <RefreshView Command="{Binding LoadCommand}" IsRefreshing="{Binding IsBusy, Mode=OneWay}">
+        <CollectionView ItemsSource="{Binding Groups}" IsGrouped="True" SelectionMode="None" Margin="16,8">
+            <CollectionView.Header>
+                <Label Text="Tareas sin completar vencidas o que vencen en los próximos 7 días." Style="{StaticResource Muted}" Margin="0,0,0,8" />
+            </CollectionView.Header>
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="24" Spacing="8" HorizontalOptions="Center">
+                    <Label Text="🎉" FontSize="40" HorizontalOptions="Center" />
+                    <Label Text="No hay vencimientos próximos." Style="{StaticResource H2}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.GroupHeaderTemplate>
+                <DataTemplate x:DataType="vm:AlertGroup">
+                    <Label Text="{Binding Title}" Style="{StaticResource H2}" Margin="0,12,0,6" />
+                </DataTemplate>
+            </CollectionView.GroupHeaderTemplate>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:AlertItem">
+                    <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,0,8">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AlertsViewModel}}, Path=OpenCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
+                            <Label Text="{Binding Title}" FontAttributes="Bold" FontSize="15" TextColor="{AppThemeBinding Light=#1B1D23, Dark=#F2F2F5}" />
+                            <Label Grid.Row="1" Text="{Binding ProjectName}" Style="{StaticResource Muted}" />
+                            <Border Grid.Column="1" Grid.RowSpan="2" Style="{StaticResource Chip}" VerticalOptions="Center" BackgroundColor="#FB8C00">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsOverdue}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Danger}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label Text="{Binding DueText}" Style="{StaticResource ChipText}" />
+                            </Border>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </RefreshView>
+</ContentPage>

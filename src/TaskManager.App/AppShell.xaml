@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Navegación: menú lateral (Navigation Drawer de Material en Android, panel fijo en Windows).
+    Las pantallas de inicio y login quedan fuera del menú.
+-->
+<Shell x:Class="TaskManager.App.AppShell"
+       xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:views="clr-namespace:TaskManager.App.Views"
+       Title="Gestor de Tareas"
+       FlyoutBehavior="{OnPlatform Default=Flyout, WinUI=Locked}"
+       FlyoutWidth="230">
+
+    <Shell.FlyoutHeader>
+        <VerticalStackLayout Padding="20,24,20,12" Spacing="2">
+            <Label Text="Gestor de Tareas" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+            <Label x:Name="UserLabel" FontSize="13" TextColor="{AppThemeBinding Light=#6B7080, Dark=#9A9DA8}" />
+        </VerticalStackLayout>
+    </Shell.FlyoutHeader>
+
+    <ShellContent Route="startup" FlyoutItemIsVisible="False" ContentTemplate="{DataTemplate views:StartupPage}" />
+    <ShellContent Route="login" FlyoutItemIsVisible="False" ContentTemplate="{DataTemplate views:LoginPage}" />
+
+    <!-- Un FlyoutItem por sección: así no aparece además una barra de pestañas superior. -->
+    <FlyoutItem Title="Tableros" Route="projects" Icon="{FontImageSource Glyph='▦', Color={StaticResource Primary}}">
+        <ShellContent ContentTemplate="{DataTemplate views:ProjectsPage}" />
+    </FlyoutItem>
+    <FlyoutItem Title="Alertas" Route="alerts" Icon="{FontImageSource Glyph='⏰', Color={StaticResource Primary}}">
+        <ShellContent ContentTemplate="{DataTemplate views:AlertsPage}" />
+    </FlyoutItem>
+    <FlyoutItem Title="Etiquetas" Route="labels" Icon="{FontImageSource Glyph='🏷', Color={StaticResource Primary}}">
+        <ShellContent ContentTemplate="{DataTemplate views:LabelsPage}" />
+    </FlyoutItem>
+    <FlyoutItem Title="Perfil" Route="profile" Icon="{FontImageSource Glyph='👤', Color={StaticResource Primary}}">
+        <ShellContent ContentTemplate="{DataTemplate views:ProfilePage}" />
+    </FlyoutItem>
+</Shell>

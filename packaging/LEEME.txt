@@ -1,0 +1,16 @@
+Gestor de Tareas - versión de Windows
+=====================================
+
+Ejecutar:  GestorTareas.exe
+
+- No requiere instalación ni tener .NET instalado (la carpeta es autocontenida).
+- Se puede copiar la carpeta completa a otra PC con Windows 10 (1809) o superior, x64.
+- Los datos se guardan cifrados en %LOCALAPPDATA%\GestorTareas
+  (base SQLCipher + clave protegida con DPAPI para tu usuario de Windows).
+
+Atajos: Ctrl+N nueva tarea/tablero · Ctrl+F buscar · Ctrl+L limpiar filtros ·
+        Ctrl+E editar tablero · F5 actualizar · Ctrl+S guardar tarea · Ctrl+W volver.
+Arrastrá las tarjetas entre columnas con el mouse o usá el clic derecho para moverlas.
+
+Código fuente e instrucciones de compilación: carpeta "Gestor de Tareas" (README.md).
+Para regenerar este ejecutable:  ..\Gestor de Tareas\build.ps1 -Target windows

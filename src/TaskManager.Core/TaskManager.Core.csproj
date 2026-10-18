@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Dominio, persistencia cifrada (SQLCipher) y servicios. Sin dependencias de UI: lo comparten Android, Windows y los tests. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>TaskManager.Core</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <IsTrimmable>false</IsTrimmable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="sqlite-net-sqlcipher" Version="1.9.172" />
+    <!-- 2.1.11: binarios nativos de Android alineados a páginas de 16 KB (requisito de Android 15+/Google Play). -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="2.1.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TaskManager.Core.Tests" />
+  </ItemGroup>
+
+</Project>

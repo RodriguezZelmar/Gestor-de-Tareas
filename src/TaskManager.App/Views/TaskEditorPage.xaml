@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TaskManager.App.ViewModels"
+             x:Class="TaskManager.App.Views.TaskEditorPage"
+             x:DataType="vm:TaskEditorViewModel"
+             Title="{Binding PageTitle}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Guardar" Command="{Binding SaveCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.MenuBarItems>
+        <MenuBarItem Text="Tarea">
+            <MenuFlyoutItem Text="Guardar" Command="{Binding SaveCommand}">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Ctrl" Key="S" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Volver sin guardar" Command="{Binding CancelCommand}">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Ctrl" Key="W" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+        </MenuBarItem>
+    </ContentPage.MenuBarItems>
+
+    <ScrollView>
+        <Grid x:Name="EditorGrid" Padding="16" ColumnSpacing="16" RowSpacing="16" ColumnDefinitions="3*,2*" RowDefinitions="Auto,Auto">
+
+            <!-- Formulario -->
+            <Border x:Name="FormPanel" Style="{StaticResource Card}" VerticalOptions="Start">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding ProjectName}" Style="{StaticResource Muted}" IsVisible="{Binding IsExisting}" />
+
+                    <Label Text="Título" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding TaskTitle}" MaxLength="120" Placeholder="¿Qué hay que hacer?" />
+
+                    <Label Text="Descripción" Style="{StaticResource FieldLabel}" />
+                    <Editor Text="{Binding Description}" MaxLength="4000" AutoSize="TextChanges" MinimumHeightRequest="100" Placeholder="Detalles, pasos, enlaces…" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout>
+                            <Label Text="Estado" Style="{StaticResource FieldLabel}" />
+                            <Picker ItemsSource="{Binding StateOptions}" SelectedItem="{Binding SelectedState}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1">
+                            <Label Text="Prioridad" Style="{StaticResource FieldLabel}" />
+                            <Picker ItemsSource="{Binding PriorityOptions}" SelectedItem="{Binding SelectedPriority}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                        <Label Text="Fecha de vencimiento" Style="{StaticResource FieldLabel}" VerticalOptions="Center" Margin="0" />
+                        <Switch Grid.Column="1" IsToggled="{Binding HasDueDate}" OnColor="{StaticResource Primary}" />
+                    </Grid>
+                    <HorizontalStackLayout Spacing="12" IsVisible="{Binding HasDueDate}">
+                        <DatePicker Date="{Binding DueDate}" Format="ddd d MMM yyyy" MinimumWidthRequest="170" />
+                        <TimePicker Time="{Binding DueTime}" Format="HH:mm" />
+                    </HorizontalStackLayout>
+
+                    <Label Text="Etiquetas" Style="{StaticResource FieldLabel}" />
+                    <Label Text="No tenés etiquetas. Creá algunas desde «Etiquetas»." Style="{StaticResource Muted}"
+                           IsVisible="{Binding HasLabels, Converter={StaticResource Not}}" />
+                    <FlexLayout BindableLayout.ItemsSource="{Binding Labels}" Wrap="Wrap">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SelectableLabel">
+                                <Border StrokeShape="RoundRectangle 14" StrokeThickness="2" Padding="12,5" Margin="0,0,6,6"
+                                        Stroke="{Binding Label.Color, Converter={StaticResource HexToColor}}" BackgroundColor="Transparent">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{Binding Label.Color, Converter={StaticResource HexToColor}}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TaskEditorViewModel}}, Path=ToggleLabelCommand}"
+                                                              CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="{Binding Label.Name}" FontSize="13" FontAttributes="Bold"
+                                           TextColor="{Binding Label.Color, Converter={StaticResource HexToColor}}">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="TextColor" Value="White" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+
+                    <Label Text="{Binding Meta}" Style="{StaticResource Muted}" FontSize="12" IsVisible="{Binding IsExisting}" Margin="0,8,0,0" />
+                    <Label Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" Style="{StaticResource ErrorText}" />
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8" Margin="0,12,0,0">
+                        <Button Text="Eliminar" Style="{StaticResource DangerButton}" IsVisible="{Binding IsExisting}" Command="{Binding DeleteCommand}" />
+                        <Button Grid.Column="2" Text="Cancelar" Style="{StaticResource TextButton}" Command="{Binding CancelCommand}" />
+                        <Button Grid.Column="3" Text="Guardar" Command="{Binding SaveCommand}" IsEnabled="{Binding IsNotBusy}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Comentarios e historial -->
+            <Border x:Name="CommentsPanel" Grid.Column="1" Style="{StaticResource Card}" VerticalOptions="Start" IsVisible="{Binding IsExisting}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Comentarios e historial" Style="{StaticResource H2}" />
+                    <Editor Text="{Binding NewComment}" MaxLength="2000" AutoSize="TextChanges" MinimumHeightRequest="60" Placeholder="Escribí un comentario…" />
+                    <Button Text="Comentar" HorizontalOptions="End" Command="{Binding AddCommentCommand}" />
+
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Comments}" Spacing="10">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:CommentItem">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                    <Border WidthRequest="30" HeightRequest="30" StrokeShape="RoundRectangle 15" StrokeThickness="0" VerticalOptions="Start"
+                                            BackgroundColor="{StaticResource Primary}">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsSystem}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#CFD8DC, Dark=#37474F}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Label Text="{Binding Initial}" TextColor="White" FontAttributes="Bold" FontSize="13" HorizontalOptions="Center" VerticalOptions="Center" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label FontSize="12" Style="{StaticResource Muted}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Author}" FontAttributes="Bold" />
+                                                    <Span Text=" · " />
+                                                    <Span Text="{Binding When}" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <Label Text="{Binding Body}" LineBreakMode="WordWrap" TextColor="{AppThemeBinding Light=#1B1D23, Dark=#F2F2F5}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsSystem}" Value="True">
+                                                    <Setter Property="FontAttributes" Value="Italic" />
+                                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=#6B7080, Dark=#9A9DA8}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="2" Text="✕" Style="{StaticResource IconButton}" FontSize="14" IsVisible="{Binding CanDelete}"
+                                            SemanticProperties.Description="Eliminar comentario"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TaskEditorViewModel}}, Path=DeleteCommentCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </ScrollView>
+</ContentPage>

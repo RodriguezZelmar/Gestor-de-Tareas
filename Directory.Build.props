@@ -1,0 +1,8 @@
+<Project>
+  <!-- Configuración común a todos los proyectos del Gestor de Tareas. -->
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TaskManager.App.ViewModels"
+             x:Class="TaskManager.App.Views.ProfilePage"
+             x:DataType="vm:ProfileViewModel"
+             Title="Perfil">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16" MaximumWidthRequest="640">
+            <Border Style="{StaticResource Card}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                    <Border WidthRequest="64" HeightRequest="64" StrokeShape="RoundRectangle 32" StrokeThickness="0" BackgroundColor="{StaticResource Primary}">
+                        <Label Text="{Binding Initials}" TextColor="White" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                        <Label Text="{Binding DisplayName}" Style="{StaticResource H2}" />
+                        <Label Text="{Binding MemberSince}" Style="{StaticResource Muted}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Datos personales" Style="{StaticResource H2}" />
+                    <Label Text="Nombre" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding DisplayName}" MaxLength="80" />
+                    <Label Text="Email" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding Email}" Keyboard="Email" IsSpellCheckEnabled="False" MaxLength="254" />
+                    <Button Text="Guardar cambios" Command="{Binding SaveProfileCommand}" HorizontalOptions="Start" Margin="0,12,0,0" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Cambiar contraseña" Style="{StaticResource H2}" />
+                    <Label Text="Contraseña actual" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding CurrentPassword}" IsPassword="True" MaxLength="128" />
+                    <Label Text="Nueva contraseña" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding NewPassword}" IsPassword="True" MaxLength="128" />
+                    <Label Text="Repetir nueva contraseña" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding ConfirmPassword}" IsPassword="True" MaxLength="128" />
+                    <Button Text="Cambiar contraseña" Command="{Binding ChangePasswordCommand}" HorizontalOptions="Start" Margin="0,12,0,0" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Button Text="Cerrar sesión" Style="{StaticResource OutlineButton}" Command="{Binding LogoutCommand}" />
+
+            <Border Style="{StaticResource Card}" Stroke="{StaticResource Danger}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Eliminar cuenta" Style="{StaticResource H2}" TextColor="{StaticResource Danger}" />
+                    <Label Text="Borra tu cuenta y todos tus datos de este dispositivo. Confirmá con tu contraseña." Style="{StaticResource Muted}" />
+                    <Entry Text="{Binding DeletePassword}" IsPassword="True" MaxLength="128" Placeholder="Contraseña" Margin="0,8,0,0" />
+                    <Button Text="Eliminar mi cuenta" Style="{StaticResource DangerButton}" Command="{Binding DeleteAccountCommand}" HorizontalOptions="Start" Margin="0,8,0,0" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

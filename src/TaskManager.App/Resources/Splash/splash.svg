@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="456" height="456" viewBox="0 0 456 456" xmlns="http://www.w3.org/2000/svg">
+  <!-- Tres columnas de tablero con un check -->
+  <rect x="118" y="128" width="62" height="200" rx="14" fill="#FFFFFF" opacity="0.55" />
+  <rect x="197" y="128" width="62" height="150" rx="14" fill="#FFFFFF" opacity="0.75" />
+  <rect x="276" y="128" width="62" height="110" rx="14" fill="#FFFFFF" />
+  <path d="M250 300 l30 30 l60 -70" fill="none" stroke="#FFC107" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

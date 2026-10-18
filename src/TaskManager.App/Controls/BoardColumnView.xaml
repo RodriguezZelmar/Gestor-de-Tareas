@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Columna del tablero. Toda la columna es destino de "soltar": una tarea soltada en el espacio libre va al final. -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TaskManager.App.ViewModels"
+             xmlns:controls="clr-namespace:TaskManager.App.Controls"
+             x:Class="TaskManager.App.Controls.BoardColumnView"
+             x:DataType="vm:BoardColumn"
+             IsVisible="{Binding IsVisible}">
+    <ContentView.Resources>
+        <DataTemplate x:Key="CardTemplate" x:DataType="vm:TaskCardItem">
+            <controls:TaskCardView Padding="0,0,0,8" />
+        </DataTemplate>
+
+        <!-- En Android además se puede deslizar la tarjeta para pasarla a la columna anterior o siguiente. -->
+        <DataTemplate x:Key="SwipeCardTemplate" x:DataType="vm:TaskCardItem">
+            <SwipeView Padding="0,0,0,8" BackgroundColor="Transparent">
+                <SwipeView.LeftItems>
+                    <SwipeItems Mode="Execute">
+                        <SwipeItem Text="{Binding BackText}" IsVisible="{Binding CanMoveBack}" BackgroundColor="#546E7A"
+                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=MoveBackCommand}"
+                                   CommandParameter="{Binding .}" />
+                    </SwipeItems>
+                </SwipeView.LeftItems>
+                <SwipeView.RightItems>
+                    <SwipeItems Mode="Execute">
+                        <SwipeItem Text="{Binding ForwardText}" IsVisible="{Binding CanMoveForward}" BackgroundColor="#43A047"
+                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=MoveForwardCommand}"
+                                   CommandParameter="{Binding .}" />
+                    </SwipeItems>
+                </SwipeView.RightItems>
+                <controls:TaskCardView />
+            </SwipeView>
+        </DataTemplate>
+    </ContentView.Resources>
+
+    <Border x:Name="ColumnBorder" Style="{StaticResource Column}">
+        <Border.Triggers>
+            <DataTrigger TargetType="Border" Binding="{Binding IsDropTarget}" Value="True">
+                <Setter Property="Stroke" Value="{StaticResource Primary}" />
+            </DataTrigger>
+        </Border.Triggers>
+        <Border.GestureRecognizers>
+            <DropGestureRecognizer AllowDrop="True"
+                                   DropCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=DropOnColumnCommand}"
+                                   DropCommandParameter="{Binding .}"
+                                   DragOverCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=DragOverCommand}"
+                                   DragOverCommandParameter="{Binding .}"
+                                   DragLeaveCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=DragLeaveCommand}"
+                                   DragLeaveCommandParameter="{Binding .}" />
+        </Border.GestureRecognizers>
+
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="8">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8" Padding="4,0">
+                <Ellipse WidthRequest="10" HeightRequest="10" VerticalOptions="Center"
+                         Fill="{Binding AccentColor, Converter={StaticResource HexToColor}}" />
+                <Label Grid.Column="1" Text="{Binding Title}" FontAttributes="Bold" FontSize="15" VerticalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#1B1D23, Dark=#F2F2F5}" />
+                <Border Grid.Column="2" Style="{StaticResource Chip}" BackgroundColor="{AppThemeBinding Light=#D5D9E0, Dark=#2C2C32}" VerticalOptions="Center">
+                    <Label Text="{Binding Count}" FontSize="12" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#37474F, Dark=#CFD8DC}" />
+                </Border>
+                <Button Grid.Column="3" Text="+" Style="{StaticResource IconButton}" FontSize="22"
+                        SemanticProperties.Description="Agregar tarea en esta columna"
+                        ToolTipProperties.Text="Agregar tarea"
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoardViewModel}}, Path=NewTaskCommand}"
+                        CommandParameter="{Binding .}" />
+            </Grid>
+
+            <CollectionView x:Name="CardList" Grid.Row="1" ItemsSource="{Binding Cards}" SelectionMode="None"
+                            ItemTemplate="{OnPlatform Default={StaticResource CardTemplate}, Android={StaticResource SwipeCardTemplate}}">
+                <CollectionView.EmptyView>
+                    <Label Text="Sin tareas. Soltá una aquí." Style="{StaticResource Muted}" HorizontalOptions="Center" Margin="0,24" />
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </Grid>
+    </Border>
+</ContentView>

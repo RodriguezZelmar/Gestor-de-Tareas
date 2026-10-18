@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TaskManager.App.ViewModels"
+             x:Class="TaskManager.App.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             Title="Iniciar sesión"
+             Shell.NavBarIsVisible="False"
+             Shell.FlyoutBehavior="Disabled">
+    <ScrollView>
+        <Grid Padding="20" RowDefinitions="*,Auto,*">
+            <Border Grid.Row="1" Style="{StaticResource Card}" MaximumWidthRequest="420" Padding="28">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="✓" FontSize="40" HorizontalOptions="Center" TextColor="{StaticResource Primary}" />
+                    <Label Text="Gestor de Tareas" Style="{StaticResource H1}" HorizontalOptions="Center" />
+                    <Label Text="Ingresá para ver tus tableros" Style="{StaticResource Muted}" HorizontalOptions="Center" Margin="0,0,0,12" />
+
+                    <Label Text="Email" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding Email}" Keyboard="Email" IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
+                           Placeholder="vos@ejemplo.com" MaxLength="254" ReturnType="Next" Completed="OnEmailCompleted" />
+
+                    <Label Text="Contraseña" Style="{StaticResource FieldLabel}" />
+                    <Entry x:Name="PasswordEntry" Text="{Binding Password}" IsPassword="True" MaxLength="128" Placeholder="••••••••"
+                           ReturnType="Go" ReturnCommand="{Binding LoginCommand}" />
+
+                    <Label Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" Style="{StaticResource ErrorText}" Margin="0,6,0,0" />
+
+                    <Button Text="Ingresar" Command="{Binding LoginCommand}" IsEnabled="{Binding IsNotBusy}" Margin="0,16,0,0" />
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" />
+                    <Button Text="¿No tenés cuenta? Registrate" Style="{StaticResource TextButton}" Command="{Binding GoToRegisterCommand}" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </ScrollView>
+</ContentPage>

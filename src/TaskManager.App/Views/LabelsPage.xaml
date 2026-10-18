@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TaskManager.App.ViewModels"
+             x:Class="TaskManager.App.Views.LabelsPage"
+             x:DataType="vm:LabelsViewModel"
+             Title="Etiquetas">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16" MaximumWidthRequest="640">
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding FormTitle}" Style="{StaticResource H2}" />
+                    <Label Text="Nombre" Style="{StaticResource FieldLabel}" />
+                    <Entry Text="{Binding Name}" MaxLength="30" Placeholder="Ej.: Cliente, Backend, Urgente" ReturnCommand="{Binding SaveCommand}" />
+                    <Label Text="Color" Style="{StaticResource FieldLabel}" />
+                    <FlexLayout BindableLayout.ItemsSource="{Binding Colors}" Wrap="Wrap">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ColorChoice">
+                                <Border WidthRequest="34" HeightRequest="34" Margin="0,0,8,8" StrokeShape="RoundRectangle 17" StrokeThickness="3"
+                                        Stroke="Transparent" BackgroundColor="{Binding Hex, Converter={StaticResource HexToColor}}">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="Stroke" Value="{AppThemeBinding Light=#1B1D23, Dark=White}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LabelsViewModel}}, Path=SelectColorCommand}"
+                                                              CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                    <Label Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" Style="{StaticResource ErrorText}" />
+                    <HorizontalStackLayout Spacing="8" HorizontalOptions="End">
+                        <Button Text="Cancelar" Style="{StaticResource TextButton}" IsVisible="{Binding IsEditing}" Command="{Binding CancelEditCommand}" />
+                        <Button Text="Guardar" Command="{Binding SaveCommand}" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Padding="8">
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Labels}">
+                    <BindableLayout.EmptyView>
+                        <Label Text="No tenés etiquetas todavía." Style="{StaticResource Muted}" Padding="8" />
+                    </BindableLayout.EmptyView>
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:LabelChip">
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12" Padding="8,4">
+                                <Border Style="{StaticResource Chip}" BackgroundColor="{Binding Color, Converter={StaticResource HexToColor}}" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" Style="{StaticResource ChipText}" FontSize="13" />
+                                </Border>
+                                <Button Grid.Column="2" Text="Editar" Style="{StaticResource TextButton}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LabelsViewModel}}, Path=EditCommand}"
+                                        CommandParameter="{Binding .}" />
+                                <Button Grid.Column="3" Text="Eliminar" Style="{StaticResource TextButton}" TextColor="{StaticResource Danger}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LabelsViewModel}}, Path=DeleteCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
